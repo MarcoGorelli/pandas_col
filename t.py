@@ -1,12 +1,8 @@
 import pandas as pd
 
-import pandas_col
+from pandas_col import col
 from datetime import datetime
 
-pd.col = pandas_col.col
-
-
-import pandas as pd
 
 df = pd.DataFrame(
     {
@@ -15,16 +11,16 @@ df = pd.DataFrame(
         "c": [datetime(2020, 1, 1), datetime(2020, 1, 2), datetime(2020, 1, 3)],
     }
 )
-print(df.assign(**{col: lambda df: df[col] + 10 for col in ("a", "b")}))
-print(df.assign(**{col: pd.col(col) + 10 for col in ("a", "b")}))
-print(df.assign(**{col: 10+pd.col(col) for col in ("a", "b")}))
+print(df.assign(**{x: lambda df: df[x] + 10 for x in ("a", "b")}))
+print(df.assign(**{x: col(x) + 10 for x in ("a", "b")}))
+print(df.assign(**{x: 10+col(x) for x in ("a", "b")}))
 
-print(df.assign(c=pd.col("a").shift(1)))
+print(df.assign(c=col("a").shift(1)))
 print(
     df.assign(
-        x = 1+pd.col('a'),
-        y = 1-pd.col('a'),
-        c_formatted=pd.col("c").dt.strftime("%Y/%m/%d"),
-        b_other=pd.col("b").astype(str).str.len(),
+        x = 1+col('a'),
+        y = 1-col('a'),
+        c_formatted=col("c").dt.strftime("%Y/%m/%d"),
+        b_other=col("b").astype(str).str.len(),
     )
 )

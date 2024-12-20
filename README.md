@@ -3,20 +3,22 @@
 Sick of doing
 
 ```python
-df.assign(**{col: lambda df: df[col] + 10 for col in ("a", "b")}))
+df.assign(c = lambda df: df['a'] + df['b'])
 ```
-in pandas and having it not do what you expect?
+in pandas?
 
 Do
 ```python
 from pandas_col import col
 
-df.assign(**{col: col(col) + 10 for col in ("a", "b")})
+df.assign(c = col('a') + col('b'))
 ```
 instead!
 
-## Is this project serious?
+## Installation
 
-idk. I'm just publishing it cause it's possible. Curious what
-people think about it.
+```
+pip install git+https://github.com/MarcoGorelli/pandas_col.git
+```
+I can publish it to PyPI if anyone would actually want to use this.
 
