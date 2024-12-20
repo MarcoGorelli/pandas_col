@@ -97,54 +97,42 @@ class Expr:
 
     @property
     def dt(self):
-        return DateTimeExpr(self)
+        return NamespaceExpr(self, 'dt')
 
     @property
     def str(self):
-        return StringExpr(self)
+        return NamespaceExpr(self, 'str')
 
     @property
     def cat(self):
-        return CatExpr(self)
+        return NamespaceExpr(self, 'cat')
+
+    @property
+    def list(self):
+        return NamespaceExpr(self, 'list')
+
+    @property
+    def sparse(self):
+        return NamespaceExpr(self, 'sparse')
+
+    @property
+    def struct(self):
+        return NamespaceExpr(self, 'struct')
 
 
-class DateTimeExpr:
-    def __init__(self, func):
+class NamespaceExpr:
+    def __init__(self, func, namespace):
         self._func = func
+        self._namespace = namespace
 
     def __getattr__(self, attr):
         def func(df, *args, **kwargs):
             args = parse_args(df, *args)
             kwargs = parse_kwargs(df, **kwargs)
-            return getattr(self._func(df).dt, attr)(*args, **kwargs)
+            return getattr(getattr(self._func(df), self._namespace), attr)(*args, **kwargs)
 
         return lambda *args, **kwargs: Expr(lambda df: func(df, *args, **kwargs))
 
-
-class StringExpr:
-    def __init__(self, func):
-        self._func = func
-
-    def __getattr__(self, attr):
-        def func(df, *args, **kwargs):
-            args = parse_args(df, *args)
-            kwargs = parse_kwargs(df, **kwargs)
-            return getattr(self._func(df).str, attr)(*args, **kwargs)
-
-        return lambda *args, **kwargs: Expr(lambda df: func(df, *args, **kwargs))
-
-
-class CatExpr:
-    def __init__(self, func):
-        self._func = func
-
-    def __getattr__(self, attr):
-        def func(df, *args, **kwargs):
-            args = parse_args(df, *args)
-            kwargs = parse_kwargs(df, **kwargs)
-            return getattr(self._func(df).cat, attr)(*args, **kwargs)
-
-        return lambda *args, **kwargs: Expr(lambda df: func(df, *args, **kwargs))
 
 
 def col(col_name):
