@@ -17,8 +17,6 @@ instead!
 
 ## Installation
 
-```
-pip install git+https://github.com/MarcoGorelli/pandas_col.git
-```
-I can publish it to PyPI if anyone would actually want to use this.
+For now, just clone this repo and import `pandas_col`.
 
+I can publish it to PyPI if anyone would actually want to use this.
