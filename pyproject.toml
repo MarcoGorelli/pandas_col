@@ -1,0 +1,22 @@
+# Reference: https://packaging.python.org/en/latest/guides/writing-pyproject-toml
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pandas_col"
+version = "0.1.0"
+dependencies = []
+requires-python = ">=3.8"
+authors = [
+  { name = "Marco Gorelli", email = "33491632+MarcoGorelli@users.noreply.github.com" },
+]
+description = "pandas col"
+readme = "README.md"
+keywords = ["dataframes"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python",
+  "Operating System :: OS Independent",
+]
+
