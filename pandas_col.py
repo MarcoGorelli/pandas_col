@@ -1,5 +1,6 @@
 from typing import Hashable
 
+
 def parse_args(df, *args):
     return tuple([x(df) if isinstance(x, Expr) else x for x in args])
 
@@ -37,6 +38,36 @@ class Expr:
             return Expr(lambda df: self(df).__rsub__(other(df)))
         return Expr(lambda df: self(df).__rsub__(other))
 
+    def __mul__(self, other):
+        if isinstance(other, Expr):
+            return Expr(lambda df: self(df).__mul__(other(df)))
+        return Expr(lambda df: self(df).__mul__(other))
+
+    def __rmul__(self, other):
+        if isinstance(other, Expr):
+            return Expr(lambda df: self(df).__rmul__(other(df)))
+        return Expr(lambda df: self(df).__rmul__(other))
+
+    def __truediv__(self, other):
+        if isinstance(other, Expr):
+            return Expr(lambda df: self(df).__truediv__(other(df)))
+        return Expr(lambda df: self(df).__truediv__(other))
+
+    def __rtruediv__(self, other):
+        if isinstance(other, Expr):
+            return Expr(lambda df: self(df).__rtruediv__(other(df)))
+        return Expr(lambda df: self(df).__rtruediv__(other))
+
+    def __floordiv__(self, other):
+        if isinstance(other, Expr):
+            return Expr(lambda df: self(df).__floordiv__(other(df)))
+        return Expr(lambda df: self(df).__floordiv__(other))
+
+    def __rfloordiv__(self, other):
+        if isinstance(other, Expr):
+            return Expr(lambda df: self(df).__rfloordiv__(other(df)))
+        return Expr(lambda df: self(df).__rfloordiv__(other))
+
     def __ge__(self, other):
         if isinstance(other, Expr):
             return Expr(lambda df: self(df).__ge__(other(df)))
@@ -67,21 +98,6 @@ class Expr:
             return Expr(lambda df: self(df).__neq__(other(df)))
         return Expr(lambda df: self(df).__neq__(other))
 
-    def __prod__(self, other):
-        if isinstance(other, Expr):
-            return Expr(lambda df: self(df).__prod__(other(df)))
-        return Expr(lambda df: self(df).__prod__(other))
-
-    def __truediv__(self, other):
-        if isinstance(other, Expr):
-            return Expr(lambda df: self(df).__truediv__(other(df)))
-        return Expr(lambda df: self(df).__truediv__(other))
-
-    def __floordiv__(self, other):
-        if isinstance(other, Expr):
-            return Expr(lambda df: self(df).__floordiv__(other(df)))
-        return Expr(lambda df: self(df).__floordiv__(other))
-
     def __mod__(self, other):
         if isinstance(other, Expr):
             return Expr(lambda df: self(df).__mod__(other(df)))
@@ -97,27 +113,27 @@ class Expr:
 
     @property
     def dt(self):
-        return NamespaceExpr(self, 'dt')
+        return NamespaceExpr(self, "dt")
 
     @property
     def str(self):
-        return NamespaceExpr(self, 'str')
+        return NamespaceExpr(self, "str")
 
     @property
     def cat(self):
-        return NamespaceExpr(self, 'cat')
+        return NamespaceExpr(self, "cat")
 
     @property
     def list(self):
-        return NamespaceExpr(self, 'list')
+        return NamespaceExpr(self, "list")
 
     @property
     def sparse(self):
-        return NamespaceExpr(self, 'sparse')
+        return NamespaceExpr(self, "sparse")
 
     @property
     def struct(self):
-        return NamespaceExpr(self, 'struct')
+        return NamespaceExpr(self, "struct")
 
 
 class NamespaceExpr:
@@ -129,10 +145,11 @@ class NamespaceExpr:
         def func(df, *args, **kwargs):
             args = parse_args(df, *args)
             kwargs = parse_kwargs(df, **kwargs)
-            return getattr(getattr(self._func(df), self._namespace), attr)(*args, **kwargs)
+            return getattr(getattr(self._func(df), self._namespace), attr)(
+                *args, **kwargs
+            )
 
         return lambda *args, **kwargs: Expr(lambda df: func(df, *args, **kwargs))
-
 
 
 def col(col_name):
