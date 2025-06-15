@@ -1,22 +1,53 @@
-from typing import Hashable
+from __future__ import annotations
+from typing import Hashable, TYPE_CHECKING, Callable
+
+if TYPE_CHECKING:
+    from pandas import DataFrame, Series
 
 
-def parse_args(df, *args):
+def parse_args(df: DataFrame, *args):
     return tuple([x(df) if isinstance(x, Expr) else x for x in args])
 
 
-def parse_kwargs(df, **kwargs):
+def parse_kwargs(df: DataFrame, **kwargs):
     return {
         key: val(df) if isinstance(val, Expr) else val for key, val in kwargs.items()
     }
 
 
 class Expr:
-    def __init__(self, func):
+    def __init__(self, func: Callable[[DataFrame], Series]):
         self._func = func
 
-    def __call__(self, df):
+    def __call__(self, df: DataFrame) -> Series:
         return self._func(df)
+
+    # namespaces
+    @property
+    def dt(self):
+        return NamespaceExpr(self, "dt")
+
+    @property
+    def str(self):
+        return NamespaceExpr(self, "str")
+
+    @property
+    def cat(self):
+        return NamespaceExpr(self, "cat")
+
+    @property
+    def list(self):
+        return NamespaceExpr(self, "list")
+
+    @property
+    def sparse(self):
+        return NamespaceExpr(self, "sparse")
+
+    @property
+    def struct(self):
+        return NamespaceExpr(self, "struct")
+
+    # Binary ops
 
     def __add__(self, other):
         if isinstance(other, Expr):
@@ -103,6 +134,8 @@ class Expr:
             return Expr(lambda df: self(df).__mod__(other(df)))
         return Expr(lambda df: self(df).__mod__(other))
 
+    # Everything else
+
     def __getattr__(self, attr):
         def func(df, *args, **kwargs):
             args = parse_args(df, *args)
@@ -111,37 +144,13 @@ class Expr:
 
         return lambda *args, **kwargs: Expr(lambda df: func(df, *args, **kwargs))
 
-    @property
-    def dt(self):
-        return NamespaceExpr(self, "dt")
-
-    @property
-    def str(self):
-        return NamespaceExpr(self, "str")
-
-    @property
-    def cat(self):
-        return NamespaceExpr(self, "cat")
-
-    @property
-    def list(self):
-        return NamespaceExpr(self, "list")
-
-    @property
-    def sparse(self):
-        return NamespaceExpr(self, "sparse")
-
-    @property
-    def struct(self):
-        return NamespaceExpr(self, "struct")
-
 
 class NamespaceExpr:
-    def __init__(self, func, namespace):
+    def __init__(self, func: Callable[[DataFrame], Series], namespace: str) -> None:
         self._func = func
         self._namespace = namespace
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> Any:
         def func(df, *args, **kwargs):
             args = parse_args(df, *args)
             kwargs = parse_kwargs(df, **kwargs)
@@ -152,8 +161,9 @@ class NamespaceExpr:
         return lambda *args, **kwargs: Expr(lambda df: func(df, *args, **kwargs))
 
 
-def col(col_name):
+def col(col_name: Hashable) -> Expr: 
     if not isinstance(col_name, Hashable):
         msg = f"Expected Hashable, got: {type(col_name)}"
         raise TypeError(msg)
     return Expr(lambda df: df[col_name])
+
